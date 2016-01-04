@@ -1,0 +1,7 @@
+{
+    "name": "cssparser",
+    "description": "CSS syntax level 3 parser, wrtten in D.",
+    "authors": ["kubo39"],
+    "targetType": "library",
+    "targetPath": "build",
+}
