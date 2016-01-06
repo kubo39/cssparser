@@ -549,7 +549,6 @@ class Tokenizer
     }
     char c = nextChar;
 
-    Token token = void;
     switch (c) {
     case '\t':
     case '\n':
@@ -579,7 +578,7 @@ class Tokenizer
       auto start = position;
       advance(1);
       if (isIdentStart) {
-        token = Token(TokenType.IDHash, "#");
+        return Token(TokenType.IDHash, "#");
       }
       else if (!isEOF) {
         switch (nextChar) {
