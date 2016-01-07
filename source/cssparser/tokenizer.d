@@ -34,7 +34,7 @@ enum TokenType
   Number,
   Percentage,
   Dimension,
-  WhiteSpace,
+  Whitespace,
   Comment,
   Colon,
   Semicolon,
@@ -571,7 +571,7 @@ class Tokenizer
         }
       }
     L1:
-      return Token(TokenType.WhiteSpace, input[start .. position]);
+      return Token(TokenType.Whitespace, input[start .. position]);
     case '"':
       return consumeQuotedString(false);
     case '#':
