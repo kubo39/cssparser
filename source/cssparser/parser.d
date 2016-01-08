@@ -75,7 +75,7 @@ class Parser
   {
     while (true) {
       Token token = nextIncludingWhitespaceAndComments;
-      if (token.tokenType != TokenType.WhiteSpace && token.tokenType != TokenType.Comment) {
+      if (token.tokenType != TokenType.Whitespace && token.tokenType != TokenType.Comment) {
         return token;
       }
     }
@@ -129,15 +129,15 @@ unittest
   assert(parser.currentSourceLocation == SourceLocation(1, 1));
   assert(parser.nextIncludingWhitespace == Token(TokenType.Ident, "foo"));
   assert(parser.currentSourceLocation == SourceLocation(1, 4));
-  assert(parser.nextIncludingWhitespace == Token(TokenType.WhiteSpace, " "));
+  assert(parser.nextIncludingWhitespace == Token(TokenType.Whitespace, " "));
   assert(parser.currentSourceLocation == SourceLocation(1, 5));
   assert(parser.nextIncludingWhitespace == Token(TokenType.Ident, "bar"));
   assert(parser.currentSourceLocation == SourceLocation(1, 8));
-  assert(parser.nextIncludingWhitespace == Token(TokenType.WhiteSpace, "\n"));
+  assert(parser.nextIncludingWhitespace == Token(TokenType.Whitespace, "\n"));
   assert(parser.currentSourceLocation == SourceLocation(2, 1));
   assert(parser.nextIncludingWhitespace == Token(TokenType.Ident, "baz"));
   assert(parser.currentSourceLocation == SourceLocation(2, 4));
-  assert(parser.nextIncludingWhitespace == Token(TokenType.WhiteSpace, "\r\n\n"));
+  assert(parser.nextIncludingWhitespace == Token(TokenType.Whitespace, "\r\n\n"));
   assert(parser.currentSourceLocation == SourceLocation(4, 1));
   assert(parser.nextIncludingWhitespace == Token(TokenType.QuotedString, "ab"));
   assert(parser.currentSourceLocation == SourceLocation(5, 3));
