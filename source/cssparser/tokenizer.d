@@ -10,18 +10,6 @@ import std.typecons : Tuple, tuple;
 import std.math : pow;
 
 
-class EOFError : Exception
-{
-  this(string message,
-       string file =__FILE__,
-       size_t line = __LINE__,
-       Throwable next = null) @safe pure nothrow
-  {
-    super(message, file, line, next);
-  }
-}
-
-
 enum TokenType
 {
   Ident,
@@ -56,6 +44,7 @@ enum TokenType
   CloseParenthesis,
   CloseSquareBracket,
   CloseCurlyBracket,
+  EOF,
 }
 
 
@@ -545,7 +534,7 @@ class Tokenizer
   Token nextToken()
   {
     if (isEOF) {
-      throw new EOFError("reached end-of-file.");
+      return Token(TokenType.EOF);
     }
     char c = nextChar;
 
