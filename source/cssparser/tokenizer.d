@@ -600,7 +600,6 @@ class Tokenizer
       else {
         return Token(TokenType.Delim, "#");
       }
-      break;
     case '$':
       if (startsWith("$=")) {
         advance(2);
