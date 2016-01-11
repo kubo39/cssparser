@@ -515,7 +515,7 @@ class Tokenizer
         return consumeBadUrl();
       }
     }
-    assert(false);
+    return Token(TokenType.UnquotedUrl, s);
   }
 
   Token consumeBadUrl()
