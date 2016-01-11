@@ -381,7 +381,7 @@ class Tokenizer
     if (!isEOF && nextChar == '(') {
       advance(1);
       if (value.toLower == "url") {
-        return Token(TokenType.Function, value);
+        return consumeUnquotedUrl;
       }
       if (varFunctions == VarFunctions.LookingForThem &&
           value.toLower == "var") {
@@ -390,6 +390,150 @@ class Tokenizer
       return Token(TokenType.Function, value);
     }
     return Token(TokenType.Ident, value);
+  }
+
+  // https://drafts.csswg.org/css-syntax/#url-token-diagram
+  Token consumeUnquotedUrl()
+  {
+    auto start = position;  //  'url' -> '[start] ...
+
+    foreach (offset, c; input[start .. $]) {
+      switch (c) {
+      case ' ':  // consume whitespace.
+      case '\t':
+      case '\n':
+      case '\r':
+      case '\x0C':
+        break;
+      case '"':
+      case '\'':
+        return Token(TokenType.Function);
+      case ')':  // End of url-token.
+        advance(offset);
+        return Token(TokenType.UnquotedUrl, input[start .. position]);
+      default:
+        advance(offset);
+        return innerConsumeUnquotedUrl();
+      }
+    }
+    position = input.length;
+    return Token(TokenType.UnquotedUrl, input[start .. position]);
+  }
+
+  Token innerConsumeUnquotedUrl()
+  {
+    auto start = position;
+    string s = void;
+    while (true) {
+      if (isEOF) {
+        return Token(TokenType.UnquotedUrl, input[start .. position]);
+      }
+      char c = nextChar;
+      switch (c) {
+      case ' ':  // consume whitespace.
+      case '\t':
+      case '\n':
+      case '\r':
+      case '\x0C':
+        auto value = input[start .. position];
+        advance(1);
+        return consumeUrlEnd(value);
+      case ')':
+        auto value = input[start .. position];
+        advance(1);
+        return Token(TokenType.UnquotedUrl, value);
+      case '\x01': .. case '\x08':
+      case '\x0B':
+      case '\x0E': .. case '\x1F':
+      case '\x7F':
+      case '"':
+      case '\'':
+      case '(':
+        advance(1);
+        return consumeBadUrl;
+      case '\\':
+      case '\0':
+        s = input[start .. position];
+        goto L0;
+      default:
+        advance(1);
+        break;
+      }
+    }
+
+  L0:
+    while (!isEOF) {
+      char c = nextChar;
+      advance(1);
+      switch (c) {
+      case ' ':  // consume whitespace.
+      case '\t':
+      case '\n':
+      case '\r':
+      case '\x0C':
+        return consumeUrlEnd(s);
+      case ')':
+        return Token(TokenType.UnquotedUrl, s);
+      case '\x01': .. case '\x08':
+      case '\x0B':
+      case '\x0E': .. case '\x1F':
+      case '\x7F':
+      case '"':
+      case '\'':
+      case '(':
+        return consumeBadUrl();
+      case '\\':
+        if (hasNewlineAt(0)) {
+          return consumeBadUrl;
+        }
+        assert(false);
+      case '\0':
+        s ~= '\uFFFD';
+        break;
+      default:
+        s ~= c;
+      }
+    }
+    return Token(TokenType.UnquotedUrl, s);
+  }
+
+  Token consumeUrlEnd(string s)
+  {
+    while (!isEOF) {
+      char c = nextChar;
+      advance(1);
+      switch (c) {
+      case ' ':  // consume whitespace.
+      case '\t':
+      case '\n':
+      case '\r':
+      case '\x0C':
+        break;
+      case ')':
+        return Token(TokenType.UnquotedUrl, s);
+      default:
+        return consumeBadUrl();
+      }
+    }
+    assert(false);
+  }
+
+  Token consumeBadUrl()
+  {
+    while (!isEOF) {
+      char c = nextChar;
+      advance(1);
+      switch (c) {
+      case ')':
+        return Token(TokenType.BadUrl);
+      case '\\':
+        advance(1);
+        break;
+      default:
+        break;
+      }
+    }
+    assert(false);
   }
 
   string consumeName()
