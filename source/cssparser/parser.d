@@ -175,6 +175,16 @@ unittest
 }
 
 
+// https://drafts.csswg.org/css-syntax/#typedef-url-token
+unittest
+{
+  const s = "url( abc (";
+  auto parser = new Parser(s);
+  auto token = parser.next;
+  assert(token.tokenType == TokenType.BadUrl);
+}
+
+
 unittest
 {
   const s = " { foo ; bar } baz;,";

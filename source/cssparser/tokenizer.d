@@ -533,7 +533,7 @@ class Tokenizer
         break;
       }
     }
-    assert(false);
+    return Token(TokenType.BadUrl);
   }
 
   string consumeName()
