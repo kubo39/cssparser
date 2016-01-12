@@ -157,3 +157,15 @@ unittest
   assert(token.tokenType == TokenType.Ident);
   assert(token.value == "bar");
 }
+
+
+// https://drafts.csswg.org/css-syntax/#typedef-eof-token
+unittest
+{
+  const s = "";
+  auto parser = new Parser(s);
+  auto token = parser.next;
+  assert(token.tokenType == TokenType.EOF);
+  token = parser.next;
+  assert(token.tokenType == TokenType.EOF);
+}
