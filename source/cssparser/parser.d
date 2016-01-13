@@ -187,6 +187,16 @@ unittest
 
 unittest
 {
+  const s = "url( abc )";
+  auto parser = new Parser(s);
+  auto token = parser.next;
+  assert(token == Token(TokenType.UnquotedUrl, "abc"));
+  assert(parser.isEOF);
+}
+
+
+unittest
+{
   const s = " { foo ; bar } baz;,";
   auto parser = new Parser(s);
   auto token = parser.next;
