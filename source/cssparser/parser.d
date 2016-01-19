@@ -147,6 +147,56 @@ unittest
 
 unittest
 {
+  const s = "url()";
+  auto parser = new Parser(s);
+  auto token = parser.next;
+  assert(token.tokenType == TokenType.UnquotedUrl);
+  assert(token.value == "");
+}
+
+
+unittest
+{
+  const s = "url( abc";
+  auto parser = new Parser(s);
+  auto token = parser.next;
+  assert(token.tokenType == TokenType.UnquotedUrl);
+  assert(token.value == "abc");
+}
+
+
+unittest
+{
+  const s = "url( abc \t";
+  auto parser = new Parser(s);
+  auto token = parser.next;
+  assert(token.tokenType == TokenType.UnquotedUrl);
+  assert(token.value == "abc");
+}
+
+
+// https://drafts.csswg.org/css-syntax/#typedef-url-token
+unittest
+{
+  const s = "url( abc (";
+  auto parser = new Parser(s);
+  auto token = parser.next;
+  assert(token.tokenType == TokenType.BadUrl);
+}
+
+
+unittest
+{
+  const s = "url( abc )";
+  auto parser = new Parser(s);
+  auto token = parser.next;
+  assert(token == Token(TokenType.UnquotedUrl, "abc"));
+  assert(parser.isEOF);
+}
+
+
+unittest
+{
   const s = " { foo ; bar } baz;,";
   auto parser = new Parser(s);
   auto token = parser.next;
