@@ -123,7 +123,8 @@ class Tokenizer
         }
         string source = input[newPosition .. target];
 
-        while (true) {
+        while (true)
+        {
             ulong found = source.canFind("\n", "\r", "\x0C");
             if (!found)
             {
