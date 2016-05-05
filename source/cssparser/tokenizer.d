@@ -73,7 +73,7 @@ class Tokenizer
     VarFunctions varFunctions;
     SourceLocation lastKnownLineBreak;
 
-    this(in ref string _input)
+    this(in string _input)
     {
         input = _input;
         position = 0;
