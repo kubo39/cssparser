@@ -51,7 +51,7 @@ class Parser
     Tokenizer tokenizer;
     BlockType atStartOf;
 
-    this(in ref string input)
+    this(in string input)
     {
         tokenizer = new Tokenizer(input);
         atStartOf = BlockType.None;
