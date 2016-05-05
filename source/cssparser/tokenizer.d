@@ -5,7 +5,7 @@ module cssparser.tokenizer;
 import std.algorithm : startsWith, canFind;
 import std.ascii : isASCII, isDigit;
 import std.string : toLower;
-import std.conv : to, parse;
+import std.conv : to;
 import std.typecons : Tuple, tuple;
 import std.math : pow;
 import std.array : appender;
