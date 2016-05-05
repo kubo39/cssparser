@@ -8,6 +8,7 @@ import std.string : toLower;
 import std.conv : to, parse;
 import std.typecons : Tuple, tuple;
 import std.math : pow;
+import std.array : appender;
 
 
 enum TokenType
@@ -455,7 +456,8 @@ class Tokenizer
     Token innerConsumeUnquotedUrl()
     {
         auto start = position;
-        string s = void;
+        auto s = appender!string();
+
         while (true)
         {
             if (isEOF)
@@ -488,7 +490,7 @@ class Tokenizer
                 return consumeBadUrl;
             case '\\':
             case '\0':
-                s = input[start .. position];
+                s.put(input[start .. position]);
                 goto L0;
             default:
                 advance(1);
@@ -508,9 +510,9 @@ class Tokenizer
             case '\n':
             case '\r':
             case '\x0C':
-                return consumeUrlEnd(s);
+                return consumeUrlEnd(s.data);
             case ')':
-                return Token(TokenType.UnquotedUrl, s);
+                return Token(TokenType.UnquotedUrl, s.data);
             case '\x01': .. case '\x08':
             case '\x0B':
             case '\x0E': .. case '\x1F':
@@ -526,13 +528,13 @@ class Tokenizer
                 }
                 assert(false);
             case '\0':
-                s ~= '\uFFFD';
+                s.put('\uFFFD');
                 break;
             default:
-                s ~= c;
+                s.put(c);
             }
         }
-        return Token(TokenType.UnquotedUrl, s);
+        return Token(TokenType.UnquotedUrl, s.data);
     }
 
     Token consumeUrlEnd(string s)
@@ -581,7 +583,7 @@ class Tokenizer
     string consumeName()
     {
         auto start = position;
-        string value = void;
+        auto value = appender!string();
 
         while (true)
         {
@@ -601,7 +603,7 @@ class Tokenizer
                 break;
             case '\\':
             case '\0':
-                value = input[start .. position];
+                value.put(input[start .. position]);
                 goto L0;
             default:
                 if (c.isASCII)
@@ -624,36 +626,37 @@ class Tokenizer
             case '_':
             case '-':
                 advance(1);
-                value ~= c;
+                value.put(c);
                 break;
             case '\\':
                 if (hasNewlineAt(1))
                 {
-                    return value;
+                    return value.data;
                 }
                 advance(1);
                 break;
             case '\0':
                 advance(1);
-                value ~= '\uFFFD';
+                value.put('\uFFFD');
                 break;
             default:
                 if (c.isASCII)
                 {
-                    return value;
+                    return value.data;
                 }
                 advance(1);
                 break;
             }
         }
-        return value;
+        return value.data;
     }
 
     Token consumeQuotedString(bool singleQuote)
     {
         advance(1);  // Skip initial quote.
         auto start = position;
-        string ret;
+        auto value = appender!string();
+
         while (true)
         {
             if (isEOF)
@@ -665,29 +668,29 @@ class Tokenizer
             case '"':
                 if (!singleQuote)
                 {
-                    ret = input[start .. position];
+                    value.put(input[start .. position]);
                     advance(1);
-                    return Token(TokenType.QuotedString, ret);
+                    return Token(TokenType.QuotedString, value.data);
                 }
                 advance(1);
                 goto L0;
             case '\'':
                 if (singleQuote)
                 {
-                    ret = input[start .. position];
+                    value.put(input[start .. position]);
                     advance(1);
-                    return Token(TokenType.QuotedString, ret);
+                    return Token(TokenType.QuotedString, value.data);
                 }
                 advance(1);
                 goto L0;
             case '\\':
             case '\0':
-                ret = input[start .. position];
+                value.put(input[start .. position]);
                 goto L0;
             case '\n':
             case '\r':
             case '\x0C':
-                return Token(TokenType.BadString, ret);
+                return Token(TokenType.BadString, value.data);
             default:
                 advance(1);
                 break;
@@ -708,13 +711,13 @@ class Tokenizer
             case '"':
                 if (!singleQuote)
                 {
-                    return Token(TokenType.QuotedString, ret);
+                    return Token(TokenType.QuotedString, value.data);
                 }
                 break;
             case '\'':
                 if (singleQuote)
                 {
-                    return Token(TokenType.QuotedString, ret);
+                    return Token(TokenType.QuotedString, value.data);
                 }
                 break;
             case '\\':
@@ -735,18 +738,18 @@ class Tokenizer
                         }
                         break;
                     default:
-                        ret ~= c;
+                        value.put(c);
                         break;
                     }
                 }
                 break;
             case '\0':
             default:
-                ret ~= c;
+                value.put(c);
                 break;
             }
         }
-        return Token(TokenType.QuotedString, ret);
+        return Token(TokenType.QuotedString, value.data);
     }
 
     Token nextToken()
