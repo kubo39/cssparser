@@ -1076,6 +1076,7 @@ class Tokenizer
 }
 
 
+// Ident, Colon.
 unittest
 {
     const s = "foo:";
