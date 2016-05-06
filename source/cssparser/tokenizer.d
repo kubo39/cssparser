@@ -199,7 +199,8 @@ class Tokenizer
     {
         if (!isEOF)
         {
-            switch (nextChar)
+            char c = nextChar;
+            switch (c)
             {
             case 'a': .. case 'z':
             case 'A': .. case 'Z':
@@ -225,7 +226,7 @@ class Tokenizer
             case '\\':
                 return !hasNewlineAt(1);
             default:
-                assert(false);
+                return !c.isASCII;
             }
         }
         return false;
