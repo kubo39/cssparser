@@ -241,47 +241,36 @@ class Tokenizer
     // Parse [+-]?\d*(\.\d+)?([eE][+-]?\d+)?
     Token consumeNumeric()
     {
-        double sign;
         bool hasSign;
+        double sign = 1.0;
         char c = nextChar;
         switch (c)
         {
         case '+':
             hasSign = true;
-            sign = 1.0;
             break;
         case '-':
             hasSign = true;
             sign = -1.0;
             break;
         default:
-            hasSign = false;
-            sign = 1.0;
             break;
         }
 
-        if (hasSign)
-        {
-            advance(1);
-        }
+        if (hasSign) advance(1);
 
         double integralPart = 0.0;
         while (true)
         {
             auto digit = nextChar;
-            if (isDigit(digit))
+            if (digit.isDigit)
             {
-                integralPart = integralPart * 10.0 + digit.to!double;
+                integralPart = integralPart * 10.0 + (digit - 48).to!double;
                 advance(1);
-                if (isEOF)
-                {
-                    break;
-                }
+                if (isEOF) break;
             }
             else
-            {
                 break;
-            }
         }
 
         bool isInteger = true;
@@ -297,35 +286,23 @@ class Tokenizer
                 while (true)
                 {
                     auto digit = nextChar;
-                    if (isDigit(digit))
+                    if (digit.isDigit)
                     {
-                        fractionalPart += digit.to!double * factor;
+                        fractionalPart += (digit - 48).to!double * factor;
                         factor *= 0.1;
                         advance(1);
-                        if (isEOF)
-                        {
-                            break;
-                        }
+                        if (isEOF) break;
                     }
                     else
-                    {
                         break;
-                    }
                 }
             }
         }
         auto value = sign * (integralPart + fractionalPart);
 
-        if ((hasAtLeast(1)
-             && (nextChar == 'e' || nextChar == 'E')
-             && charAt(1).isDigit
-                ) || (
-                    hasAtLeast(2)
-                    && (nextChar == 'e' || nextChar == 'E')
-                    && (charAt(1) == '+' || charAt(1) == '-')
-                    && charAt(2).isDigit
-                    )
-            )
+        if (hasAtLeast(1) && (nextChar == 'e' || nextChar == 'E') && charAt(1).isDigit
+            || hasAtLeast(2) && (nextChar == 'e' || nextChar == 'E')
+            && (charAt(1) == '+' || charAt(1) == '-') && charAt(2).isDigit)
         {
             isInteger = false;
             advance(1);
@@ -347,28 +324,21 @@ class Tokenizer
             }
 
             if (hasSign)
-            {
                 advance(1);
-            }
 
             double exponent = 0.0;
 
             while (true)
             {
                 auto digit = nextChar;
-                if (isDigit(digit))
+                if (digit.isDigit)
                 {
-                    exponent = exponent * 10.0 + digit.to!double;
+                    exponent = exponent * 10.0 + (digit - 48).to!double;
                     advance(1);
-                    if (isEOF)
-                    {
-                        break;
-                    }
+                    if (isEOF) break;
                 }
                 else
-                {
                     break;
-                }
             }
             value *= pow(10.0, sign * exponent);
         }
@@ -377,17 +347,11 @@ class Tokenizer
         if (isInteger)
         {
             if (value >= int.max.to!double)
-            {
                 intVal = int.max;
-            }
             else if (value <= int.min.to!double)
-            {
                 intVal = int.min;
-            }
             else
-            {
                 intVal = value.to!int;
-            }
         }
 
         if (!isEOF && nextChar == '%')
@@ -1158,4 +1122,21 @@ unittest
         assert(token.tokenType == TokenType.UnicodeRange);
         assert(token.value == "256,271", token.value);
     }
+}
+
+
+// Number
+unittest
+{
+    const s = "12 +34 -45 .67 +.89 -.01 2.3 +45.0 -0.67";
+    auto tokenizer = new Tokenizer(s);
+    Token token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "12", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "34", token.value);
 }
