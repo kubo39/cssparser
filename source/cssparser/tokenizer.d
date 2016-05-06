@@ -1140,4 +1140,46 @@ unittest
     token = tokenizer.nextToken;
     assert(token.tokenType == TokenType.Number);
     assert(token.value == "34", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "-45", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "0.67", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "0.89", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "-0.01", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "2.3", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "45", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.tokenType == TokenType.Number);
+    assert(token.value == "-0.67", token.value);
 }
