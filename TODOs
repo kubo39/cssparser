@@ -1,0 +1,8 @@
+# TODOs
+
+* Implements tokenizer specification.
+* Implements parser specification.
+* Implements css-preprocessor specification.
+* More test.
+* Support multi-byte character.
+* Make it faster.
