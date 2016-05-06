@@ -14,7 +14,7 @@ enum BlockType
 
 BlockType openingBlockType(Token token)
 {
-    switch (token.tokenType)
+    switch (token.type)
     {
     case TokenType.ParenthesisBlock:
         return BlockType.Parenthesis;
@@ -31,7 +31,7 @@ BlockType openingBlockType(Token token)
 
 BlockType closingBlockType(Token token)
 {
-    switch (token.tokenType)
+    switch (token.type)
     {
     case TokenType.CloseParenthesis:
         return BlockType.Parenthesis;
@@ -78,7 +78,7 @@ class Parser
         while (true)
         {
             Token token = nextIncludingWhitespaceAndComments;
-            if (token.tokenType != TokenType.Whitespace && token.tokenType != TokenType.Comment)
+            if (token.type != TokenType.Whitespace && token.type != TokenType.Comment)
             {
                 return token;
             }
@@ -90,7 +90,7 @@ class Parser
         while (true)
         {
             Token token = nextIncludingWhitespaceAndComments;
-            if (token.tokenType != TokenType.Comment)
+            if (token.type != TokenType.Comment)
             {
                 return token;
             }
@@ -161,7 +161,7 @@ unittest
     const s = "url()";
     auto parser = new Parser(s);
     auto token = parser.next;
-    assert(token.tokenType == TokenType.UnquotedUrl);
+    assert(token.type == TokenType.UnquotedUrl);
     assert(token.value == "");
 }
 
@@ -171,7 +171,7 @@ unittest
     const s = "url( abc";
     auto parser = new Parser(s);
     auto token = parser.next;
-    assert(token.tokenType == TokenType.UnquotedUrl);
+    assert(token.type == TokenType.UnquotedUrl);
     assert(token.value == "abc");
 }
 
@@ -181,7 +181,7 @@ unittest
     const s = "url( abc \t";
     auto parser = new Parser(s);
     auto token = parser.next;
-    assert(token.tokenType == TokenType.UnquotedUrl);
+    assert(token.type == TokenType.UnquotedUrl);
     assert(token.value == "abc");
 }
 
@@ -192,7 +192,7 @@ unittest
     const s = "url( abc (";
     auto parser = new Parser(s);
     auto token = parser.next;
-    assert(token.tokenType == TokenType.BadUrl);
+    assert(token.type == TokenType.BadUrl);
 }
 
 
@@ -211,11 +211,11 @@ unittest
     const s = " { foo ; bar } baz;,";
     auto parser = new Parser(s);
     auto token = parser.next;
-    assert(token.tokenType == TokenType.CurlyBracketBlock);
+    assert(token.type == TokenType.CurlyBracketBlock);
     assert(token.value == "{");
 
     token = parser.next;
-    assert(token.tokenType == TokenType.Ident);
+    assert(token.type == TokenType.Ident);
     assert(token.value == "bar");
 }
 
@@ -226,7 +226,7 @@ unittest
     const s = "";
     auto parser = new Parser(s);
     auto token = parser.next;
-    assert(token.tokenType == TokenType.EOF);
+    assert(token.type == TokenType.EOF);
     token = parser.next;
-    assert(token.tokenType == TokenType.EOF);
+    assert(token.type == TokenType.EOF);
 }

@@ -52,7 +52,7 @@ enum TokenType
 
 struct Token
 {
-    TokenType tokenType;
+    TokenType type;
     string value;
 }
 
@@ -1083,11 +1083,11 @@ unittest
     auto tokenizer = new Tokenizer(s);
 
     Token token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Ident);
+    assert(token.type == TokenType.Ident);
     assert(token.value == "foo");
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Colon);
+    assert(token.type == TokenType.Colon);
     assert(token.value == ":");
 
     assert(tokenizer.isEOF);
@@ -1102,7 +1102,7 @@ unittest
         auto tokenizer = new Tokenizer(s);
 
         Token token = tokenizer.nextToken;
-        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.type == TokenType.UnicodeRange);
         assert(token.value == "16,16", token.value);
     }
 
@@ -1111,7 +1111,7 @@ unittest
         auto tokenizer = new Tokenizer(s);
 
         Token token = tokenizer.nextToken;
-        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.type == TokenType.UnicodeRange);
         assert(token.value == "15,15", token.value);
     }
 
@@ -1120,7 +1120,7 @@ unittest
         auto tokenizer = new Tokenizer(s);
 
         Token token = tokenizer.nextToken;
-        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.type == TokenType.UnicodeRange);
         assert(token.value == "256,271", token.value);
     }
 }
@@ -1132,54 +1132,54 @@ unittest
     const s = "12 +34 -45 .67 +.89 -.01 2.3 +45.0 -0.67";
     auto tokenizer = new Tokenizer(s);
     Token token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "12", token.value);
 
     tokenizer.nextToken; // consume Whitespace.
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "34", token.value);
 
     tokenizer.nextToken; // consume Whitespace.
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "-45", token.value);
 
     tokenizer.nextToken; // consume Whitespace.
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "0.67", token.value);
 
     tokenizer.nextToken; // consume Whitespace.
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "0.89", token.value);
 
     tokenizer.nextToken; // consume Whitespace.
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "-0.01", token.value);
 
     tokenizer.nextToken; // consume Whitespace.
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "2.3", token.value);
 
     tokenizer.nextToken; // consume Whitespace.
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "45", token.value);
 
     tokenizer.nextToken; // consume Whitespace.
 
     token = tokenizer.nextToken;
-    assert(token.tokenType == TokenType.Number);
+    assert(token.type == TokenType.Number);
     assert(token.value == "-0.67", token.value);
 }
