@@ -2,9 +2,4 @@
 
 ## About
 
-CSS Parser wrtten in D.
-
-## TODOs
-
-* Support multi-byte character.
-* Make it faster.
+Experimental CSS Parser wrtten in D language. This is very early-stage and incomplete for [CSS Syntax Level-3 spec](https://drafts.csswg.org/css-syntax/).
