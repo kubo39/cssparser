@@ -128,9 +128,7 @@ class Tokenizer
         {
             ulong found = source.canFind("\n", "\r", "\x0C");
             if (!found)
-            {
                 break;
-            }
 
             // index search.
             ulong newLinePosition = (string arr, immutable(char)[] targets) {
@@ -139,9 +137,7 @@ class Tokenizer
                     foreach (id, v; arr)
                     {
                         if (v == target)
-                        {
                             return id;
-                        }
                     }
                 }
                 assert(false);
@@ -149,13 +145,9 @@ class Tokenizer
 
             auto offset = newLinePosition;
             if (source[newLinePosition .. $].startsWith("\r\n"))
-            {
                 offset += 2;
-            }
             else
-            {
                 offset++;
-            }
             source = source[offset .. $];
             newPosition += offset;
             lineNumber++;
@@ -377,14 +369,10 @@ class Tokenizer
         {
             advance(1);
             if (value.toLower == "url")
-            {
                 return consumeUnquotedUrl;
-            }
             if (varFunctions == VarFunctions.LookingForThem &&
                 value.toLower == "var")
-            {
                 varFunctions = VarFunctions.SeenAtLeastOne;
-            }
             return Token(TokenType.Function, value);
         }
         return Token(TokenType.Ident, value);
@@ -428,9 +416,7 @@ class Tokenizer
         while (true)
         {
             if (isEOF)
-            {
                 return Token(TokenType.UnquotedUrl, input[start .. position]);
-            }
             char c = nextChar;
             switch (c)
             {
@@ -490,9 +476,7 @@ class Tokenizer
                 return consumeBadUrl();
             case '\\':
                 if (hasNewlineAt(0))
-                {
                     return consumeBadUrl;
-                }
                 assert(false);
             case '\0':
                 s.put('\uFFFD');
@@ -555,9 +539,7 @@ class Tokenizer
         while (true)
         {
             if (isEOF)
-            {
                 return input[start .. position];
-            }
             char c = nextChar;
             switch (c)
             {
@@ -574,9 +556,7 @@ class Tokenizer
                 goto L0;
             default:
                 if (c.isASCII)
-                {
                     return input[start .. position];
-                }
                 advance(1);
                 break;
             }
@@ -608,9 +588,7 @@ class Tokenizer
                 break;
             default:
                 if (c.isASCII)
-                {
                     return value.data;
-                }
                 advance(1);
                 break;
             }
@@ -627,9 +605,7 @@ class Tokenizer
         while (true)
         {
             if (isEOF)
-            {
                 return Token(TokenType.QuotedString, input[start .. $]);
-            }
             switch (nextChar)
             {
             case '"':
@@ -668,24 +644,18 @@ class Tokenizer
         {
             char c = nextChar;
             if (c == '\n' || c == '\r' || c == '\x0C')
-            {
                 return Token(TokenType.BadString);
-            }
             c = nextChar;
             advance(1);
             switch (c)
             {
             case '"':
                 if (!singleQuote)
-                {
                     return Token(TokenType.QuotedString, value.data);
-                }
                 break;
             case '\'':
                 if (singleQuote)
-                {
                     return Token(TokenType.QuotedString, value.data);
-                }
                 break;
             case '\\':
                 if (!isEOF)
@@ -700,9 +670,7 @@ class Tokenizer
                     case '\r':
                         advance(1);
                         if (!isEOF && '\n' == nextChar)
-                        {
                             advance(1);
-                        }
                         break;
                     default:
                         value.put(c);
@@ -774,9 +742,7 @@ class Tokenizer
                 advance(1);
             }
             else
-            {
                 break;
-            }
         }
         return tuple(value, digits);
     }
@@ -784,9 +750,7 @@ class Tokenizer
     Token nextToken()
     {
         if (isEOF)
-        {
             return Token(TokenType.EOF);
-        }
         char c = nextChar;
 
         switch (c)
@@ -821,9 +785,7 @@ class Tokenizer
             auto start = position;
             advance(1);
             if (isIdentStart)
-            {
                 return Token(TokenType.IDHash, "#");
-            }
             else if (!isEOF)
             {
                 switch (nextChar)
@@ -836,18 +798,14 @@ class Tokenizer
                     return Token(TokenType.Hash, input[start .. position]);
                 case '\\':
                     if (!hasNewlineAt(1))
-                    {
                         return Token(TokenType.Hash, input[start .. position]);
-                    }
                     goto default;
                 default:
                     return Token(TokenType.Delim, input[start .. position]);
                 }
             }
             else
-            {
                 return Token(TokenType.Delim, "#");
-            }
         case '$':
             if (startsWith("$="))
             {
@@ -879,15 +837,10 @@ class Tokenizer
                 return Token(TokenType.Delim, "*");
             }
         case '+':
-            if ((hasAtLeast(1)
-                 && isDigit(charAt(1))
-                    ) || (
-                        hasAtLeast(2)
-                        && (charAt(1) == '.')
-                        && isDigit(charAt(2))))
-            {
+            if (hasAtLeast(1) && isDigit(charAt(1))
+                || hasAtLeast(2) && (charAt(1) == '.')
+                && isDigit(charAt(2)))
                 return consumeNumeric;
-            }
             else
             {
                 advance(1);
@@ -897,24 +850,17 @@ class Tokenizer
             advance(1);
             return Token(TokenType.Comma, ",");
         case '-':
-            if ((hasAtLeast(1)
-                 && isDigit(charAt(1))
-                    ) || (
-                        hasAtLeast(2)
-                        && (charAt(1) == '.')
-                        && isDigit(charAt(2))))
-            {
+            if (hasAtLeast(1) && isDigit(charAt(1))
+                || hasAtLeast(2) && (charAt(1) == '.')
+                && isDigit(charAt(2)))
                 return consumeNumeric;
-            }
             else if (startsWith("-->"))
             {
                 advance(3);
                 return Token(TokenType.CDC, "-->");
             }
             else if (isIdentStart)
-            {
                 return consumeIdentLike;
-            }
             else
             {
                 advance(1);
@@ -922,9 +868,7 @@ class Tokenizer
             }
         case '.':
             if (hasAtLeast(1) && isDigit(charAt(1)))
-            {
                 return consumeNumeric;
-            }
             else
             {
                 advance(1);
@@ -977,13 +921,9 @@ class Tokenizer
         case '@':
             advance(1);
             if (isIdentStart())
-            {
                 return Token(TokenType.AtKeyword, "@");
-            }
             else
-            {
                 return Token(TokenType.Delim, "@");
-            }
         case 'u':
         case 'U':
             if (hasAtLeast(2) && charAt(1) == '+') // u+ | U+
@@ -1012,9 +952,7 @@ class Tokenizer
             return Token(TokenType.SquareBracketBlock, "[");
         case '\\':
             if (!hasNewlineAt(1))
-            {
                 return consumeIdentLike;
-            }
             else
             {
                 advance(1);
