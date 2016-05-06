@@ -769,6 +769,7 @@ class Tokenizer
         ulong start;
         ulong end;
         auto hexValue = pair[0];
+
         if (questionMarks > 0)
         {
             start = hexValue << (questionMarks * 4);
@@ -786,7 +787,7 @@ class Tokenizer
             else
                 end = start;
         }
-        return Token(TokenType.UnicodeRange, input[start .. end]);
+        return Token(TokenType.UnicodeRange, start.to!string ~ "," ~ end.to!string);
     }
 
     /**
@@ -794,14 +795,17 @@ class Tokenizer
      */
     auto consumeHexDigit() //private
     {
-        int value;
-        int digits;
+        uint value = 0;
+        uint digits = 0;
         while (digits < 6 && !isEOF)
         {
             auto c = nextChar;
             if (c.isHexDigit)
             {
-                value = value * 16 + digits;
+                if (c.isDigit)
+                    value = value * 16 + c - 48;
+                else
+                    value = value * 16 + c - 87;
                 digits++;
                 advance(1);
             }
@@ -1122,4 +1126,36 @@ unittest
     assert(token.value == ":");
 
     assert(tokenizer.isEOF);
+}
+
+
+// Unicode Range.
+unittest
+{
+    {
+        const s = "u+10";
+        auto tokenizer = new Tokenizer(s);
+
+        Token token = tokenizer.nextToken;
+        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.value == "16,16", token.value);
+    }
+
+    {
+        const s = "u+f";
+        auto tokenizer = new Tokenizer(s);
+
+        Token token = tokenizer.nextToken;
+        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.value == "15,15", token.value);
+    }
+
+    {
+        const s = "u+10?";
+        auto tokenizer = new Tokenizer(s);
+
+        Token token = tokenizer.nextToken;
+        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.value == "256,271", token.value);
+    }
 }
