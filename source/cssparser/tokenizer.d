@@ -3,7 +3,7 @@
 module cssparser.tokenizer;
 
 import std.algorithm : startsWith, canFind;
-import std.ascii : isASCII, isDigit;
+import std.ascii : isASCII, isDigit, isHexDigit;
 import std.string : toLower;
 import std.conv : to;
 import std.typecons : Tuple, tuple;
@@ -23,6 +23,7 @@ enum TokenType
     Number,
     Percentage,
     Dimension,
+    UnicodeRange,
     Whitespace,
     Comment,
     Colon,
@@ -754,6 +755,68 @@ class Tokenizer
         return Token(TokenType.QuotedString, value.data);
     }
 
+    Token consumeUnicodeRange()
+    {
+        advance(2); // Skip U+
+        auto pair = consumeHexDigit();
+        int maxQuestionMarks = 6 - pair[1];
+        int questionMarks = 0;
+        while (questionMarks < maxQuestionMarks && !isEOF && nextChar == '?')
+        {
+            questionMarks++;
+            advance(1);
+        }
+        ulong start;
+        ulong end;
+        auto hexValue = pair[0];
+
+        if (questionMarks > 0)
+        {
+            start = hexValue << (questionMarks * 4);
+            end = ((hexValue + 1) << (questionMarks * 4)) - 1;
+        }
+        else
+        {
+            start = hexValue;
+            if (hasAtLeast(1) && nextChar == '-' && charAt(1).isHexDigit)
+            {
+                advance(1);
+                pair = consumeHexDigit();
+                end = pair[0];
+            }
+            else
+                end = start;
+        }
+        return Token(TokenType.UnicodeRange, start.to!string ~ "," ~ end.to!string);
+    }
+
+    /**
+     *  value, number of digits up to 6
+     */
+    auto consumeHexDigit() //private
+    {
+        uint value = 0;
+        uint digits = 0;
+        while (digits < 6 && !isEOF)
+        {
+            auto c = nextChar;
+            if (c.isHexDigit)
+            {
+                if (c.isDigit)
+                    value = value * 16 + c - 48;
+                else
+                    value = value * 16 + c - 87;
+                digits++;
+                advance(1);
+            }
+            else
+            {
+                break;
+            }
+        }
+        return tuple(value, digits);
+    }
+
     Token nextToken()
     {
         if (isEOF)
@@ -957,8 +1020,26 @@ class Tokenizer
             {
                 return Token(TokenType.Delim, "@");
             }
-        case 'a': .. case 'z':
-        case 'A': .. case 'Z':
+        case 'u':
+        case 'U':
+            if (hasAtLeast(2) && charAt(1) == '+') // u+ | U+
+            {
+                switch (charAt(2))
+                {
+                case '0': .. case '9':
+                case 'a': .. case 'f':
+                case 'A': .. case 'F':
+                case '?':
+                    return consumeUnicodeRange;
+                default:
+                    break;
+                }
+            }
+            return consumeIdentLike;
+        case 'a': .. case 't': // switch statement doesn't allow duplicate case.
+        case 'v': .. case 'z':
+        case 'A': .. case 'T':
+        case 'V': .. case 'Z':
         case '_':
         case '\0':
             return consumeIdentLike;
@@ -1045,4 +1126,36 @@ unittest
     assert(token.value == ":");
 
     assert(tokenizer.isEOF);
+}
+
+
+// Unicode Range.
+unittest
+{
+    {
+        const s = "u+10";
+        auto tokenizer = new Tokenizer(s);
+
+        Token token = tokenizer.nextToken;
+        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.value == "16,16", token.value);
+    }
+
+    {
+        const s = "u+f";
+        auto tokenizer = new Tokenizer(s);
+
+        Token token = tokenizer.nextToken;
+        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.value == "15,15", token.value);
+    }
+
+    {
+        const s = "u+10?";
+        auto tokenizer = new Tokenizer(s);
+
+        Token token = tokenizer.nextToken;
+        assert(token.tokenType == TokenType.UnicodeRange);
+        assert(token.value == "256,271", token.value);
+    }
 }
