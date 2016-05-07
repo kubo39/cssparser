@@ -1399,4 +1399,16 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.Hash, token.type.to!string);
     assert(token.value == "0red", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Hash, token.type.to!string);
+    assert(token.value == "-0red", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.IDHash, token.type.to!string);
+    assert(token.value == "_Red", token.value);
 }
