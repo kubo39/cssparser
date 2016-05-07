@@ -368,7 +368,10 @@ class Tokenizer
     Token consumeIdentLike()
     {
         string value = consumeName;
-        if (!isEOF && nextChar == '(')
+        if (isEOF)
+            return Token(TokenType.Ident, value);
+
+        if (nextChar == '(')
         {
             advance(1);
             if (value.toLower == "url")
@@ -1186,4 +1189,21 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.AtKeyword, token.type.to!string);
     assert(token.value == "_media", token.value);
+}
+
+
+// Function.
+unittest
+{
+    auto s = "rgba0() -rgba() --rgba()";
+    auto tokenizer = new Tokenizer(s);
+    Token token = tokenizer.nextToken;
+    assert(token.type == TokenType.Function, token.type.to!string);
+    assert(token.value == "rgba0", token.value);
+
+    // tokenizer.nextToken;  // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Function, token.type.to!string);
+    assert(token.value == "-rgba", token.value);
 }
