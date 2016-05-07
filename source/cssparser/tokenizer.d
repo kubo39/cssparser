@@ -787,7 +787,7 @@ class Tokenizer
             auto start = position;
             advance(1);
             if (isIdentStart)
-                return Token(TokenType.IDHash, "#");
+                return Token(TokenType.IDHash, consumeName);
             else if (!isEOF)
             {
                 switch (nextChar)
@@ -1366,3 +1366,13 @@ unittest
     }
 }
 
+
+// Hash.
+unittest
+{
+        auto s = "#red0";
+        auto tokenizer = new Tokenizer(s);
+        Token token = tokenizer.nextToken;
+        assert(token.type == TokenType.IDHash, token.type.to!string);
+        assert(token.value == "red0", token.value);
+}
