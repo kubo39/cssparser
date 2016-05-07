@@ -1038,30 +1038,140 @@ unittest
 unittest
 {
     {
-        const s = "u+10";
+        const s = "u+1 u+10 U+100 U+1000 U+10000 U+100000 U+1000000";
         auto tokenizer = new Tokenizer(s);
 
         Token token = tokenizer.nextToken;
         assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "1,1", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
         assert(token.value == "16,16", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "256,256", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "4096,4096", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "65536,65536", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "1048576,1048576", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "1048576,1048576", token.value);
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.Number);
+        assert(token.value == "0", token.value);
     }
 
     {
-        const s = "u+f";
+        const s = "u+a u+b u+c u+d u+e u+f";
         auto tokenizer = new Tokenizer(s);
 
         Token token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "10,10", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "11,11", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "12,12", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "13,13", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "14,14", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
         assert(token.type == TokenType.UnicodeRange);
         assert(token.value == "15,15", token.value);
     }
 
     {
-        const s = "u+10?";
+        const s = "u+? u+1? u+10? U+100? U+1000? U+10000? U+100000?";
         auto tokenizer = new Tokenizer(s);
 
         Token token = tokenizer.nextToken;
         assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "0,15", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "16,31", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
         assert(token.value == "256,271", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "4096,4111", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "65536,65551", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "1048576,1048591", token.value);
+
+        tokenizer.nextToken; // consume Whitespace.
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnicodeRange);
+        assert(token.value == "1048576,1048576", token.value);
+
+        token = tokenizer.nextToken;
+        assert(token.type == TokenType.Delim, token.type.to!string);
+        assert(token.value == "?", token.value);
     }
 }
 
