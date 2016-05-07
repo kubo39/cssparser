@@ -797,13 +797,13 @@ class Tokenizer
                 case '0': .. case '9':
                 case '-':
                 case '_':
-                    return Token(TokenType.Hash, input[start .. position]);
+                    return Token(TokenType.Hash, consumeName);
                 case '\\':
                     if (!hasNewlineAt(1))
-                        return Token(TokenType.Hash, input[start .. position]);
+                        return Token(TokenType.Hash, consumeName);
                     goto default;  // intended fallthrough.
                 default:
-                    return Token(TokenType.Delim, input[start .. position]);
+                    return Token(TokenType.Delim, "#");
                 }
             }
             else
@@ -1367,12 +1367,36 @@ unittest
 }
 
 
-// Hash.
+// IDHash and Hash.
 unittest
 {
-        auto s = "#red0";
-        auto tokenizer = new Tokenizer(s);
-        Token token = tokenizer.nextToken;
-        assert(token.type == TokenType.IDHash, token.type.to!string);
-        assert(token.value == "red0", token.value);
+    auto s = "#red0 #-Red #--red #-\\-red #0red #-0red #_Red";
+    auto tokenizer = new Tokenizer(s);
+    Token token = tokenizer.nextToken;
+    assert(token.type == TokenType.IDHash, token.type.to!string);
+    assert(token.value == "red0", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.IDHash, token.type.to!string);
+    assert(token.value == "-Red", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.IDHash, token.type.to!string);
+    assert(token.value == "--red", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.IDHash, token.type.to!string);
+    assert(token.value == "--red", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Hash, token.type.to!string);
+    assert(token.value == "0red", token.value);
 }
