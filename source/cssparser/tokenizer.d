@@ -1340,3 +1340,33 @@ unittest
     assert(token.type == TokenType.Dimension, token.type.to!string);
     assert(token.value == "-0.67", token.value);
 }
+
+
+// URL.
+unittest
+{
+    {
+        auto s = "url(";
+        auto tokenizer = new Tokenizer(s);
+        Token token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnquotedUrl, token.type.to!string);
+        assert(token.value == "", token.value);
+    }
+
+    {
+        auto s = "url(foo)";
+        auto tokenizer = new Tokenizer(s);
+        Token token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnquotedUrl, token.type.to!string);
+        assert(token.value == "foo", token.value);
+    }
+
+    {
+        auto s = "url( \t";
+        auto tokenizer = new Tokenizer(s);
+        Token token = tokenizer.nextToken;
+        assert(token.type == TokenType.UnquotedUrl, token.type.to!string);
+        assert(token.value == " \t", token.value);
+    }
+}
+
