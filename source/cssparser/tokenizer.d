@@ -352,7 +352,10 @@ class Tokenizer
         if (!isEOF && nextChar == '%')
         {
             advance(1);
-            return Token(TokenType.Percentage, ((value.to!float) / 100.0).to!string);
+            if (isInteger)
+                return Token(TokenType.Percentage, value.to!string);
+            else
+                return Token(TokenType.Percentage, value.to!float.to!string);
         }
 
         if (isIdentStart)
@@ -1186,4 +1189,63 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.AtKeyword, token.type.to!string);
     assert(token.value == "_media", token.value);
+}
+
+
+// Percentage.
+unittest
+{
+    auto s = "12% +34% -45% .67% +.89% -.01% 2.3% +45.0% -0.67%";
+    auto tokenizer = new Tokenizer(s);
+    Token token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "12", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "34", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "-45", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "0.67", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "0.89", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "-0.01", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "2.3", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "45", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Percentage, token.type.to!string);
+    assert(token.value == "-0.67", token.value);
 }
