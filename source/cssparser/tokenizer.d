@@ -920,8 +920,8 @@ class Tokenizer
             }
         case '@':
             advance(1);
-            if (isIdentStart())
-                return Token(TokenType.AtKeyword, "@");
+            if (isIdentStart)
+                return Token(TokenType.AtKeyword, consumeName);
             else
                 return Token(TokenType.Delim, "@");
         case 'u':
@@ -1120,4 +1120,21 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.Number);
     assert(token.value == "-0.67", token.value);
+}
+
+
+// at-keyword.
+unittest
+{
+    auto s = "@media0 @-Media";
+    auto tokenizer = new Tokenizer(s);
+    Token token = tokenizer.nextToken;
+    assert(token.type == TokenType.AtKeyword, token.type.to!string);
+    assert(token.value == "media0", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.AtKeyword, token.type.to!string);
+    assert(token.value == "-Media", token.value);
 }
