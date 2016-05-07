@@ -190,39 +190,42 @@ class Tokenizer
 
     bool isIdentStart()
     {
-        if (!isEOF)
+        if (isEOF)
+            return false;
+
+        char c = nextChar;
+        switch (c)
         {
-            char c = nextChar;
+        case 'a': .. case 'z':
+        case 'A': .. case 'Z':
+        case '_':
+        case '\0':
+            return true;
+        case '-':
+            if (!hasAtLeast(1))
+                return false;
+
+            c = charAt(1);
             switch (c)
             {
             case 'a': .. case 'z':
             case 'A': .. case 'Z':
+            case '-':
             case '_':
             case '\0':
                 return true;
-            case '-':
-                if (hasAtLeast(1))
-                {
-                    switch (charAt(1))
-                    {
-                    case 'a': .. case 'z':
-                    case 'A': .. case 'Z':
-                    case '_':
-                    case '\0':
-                        return true;
-                    case '\\':
-                        return !hasNewlineAt(1);
-                    default: return false;
-                    }
-                }
-                return false;
             case '\\':
                 return !hasNewlineAt(1);
             default:
                 return !c.isASCII;
             }
+            assert(false);
+        case '\\':
+            return !hasNewlineAt(1);
+        default:
+            return !c.isASCII;
         }
-        return false;
+        assert(false);
     }
 
     bool startsWith(string needle)
@@ -1126,7 +1129,7 @@ unittest
 // at-keyword.
 unittest
 {
-    auto s = "@media0 @-Media";
+    auto s = "@media0 @-Media @--media";
     auto tokenizer = new Tokenizer(s);
     Token token = tokenizer.nextToken;
     assert(token.type == TokenType.AtKeyword, token.type.to!string);
@@ -1137,4 +1140,10 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.AtKeyword, token.type.to!string);
     assert(token.value == "-Media", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.AtKeyword, token.type.to!string);
+    assert(token.value == "--media", token.value);
 }
