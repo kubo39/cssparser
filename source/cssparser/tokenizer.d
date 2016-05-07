@@ -376,10 +376,13 @@ class Tokenizer
             advance(1);
             if (value.toLower == "url")
                 return consumeUnquotedUrl;
-            if (varFunctions == VarFunctions.LookingForThem &&
-                value.toLower == "var")
-                varFunctions = VarFunctions.SeenAtLeastOne;
-            return Token(TokenType.Function, value);
+            else
+            {
+                if (varFunctions == VarFunctions.LookingForThem &&
+                    value.toLower == "var")
+                    varFunctions = VarFunctions.SeenAtLeastOne;
+                return Token(TokenType.Function, value);
+            }
         }
         return Token(TokenType.Ident, value);
     }
@@ -398,10 +401,10 @@ class Tokenizer
             case '\n':
             case '\r':
             case '\x0C':
-                break;
+                continue;
             case '"':
             case '\'':
-                return Token(TokenType.Function);
+                return Token(TokenType.Function, input[start .. position]);
             case ')':  // End of url-token.
                 advance(offset);
                 return Token(TokenType.UnquotedUrl, input[start .. position]);
