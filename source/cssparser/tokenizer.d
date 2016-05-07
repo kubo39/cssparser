@@ -1370,7 +1370,7 @@ unittest
 // IDHash and Hash.
 unittest
 {
-    auto s = "#red0 #-Red #--red #-\\-red #0red #-0red #_Red";
+    auto s = "#red0 #-Red #--red #-\\-red #0red #-0red #_Red #.red";
     auto tokenizer = new Tokenizer(s);
     Token token = tokenizer.nextToken;
     assert(token.type == TokenType.IDHash, token.type.to!string);
@@ -1411,4 +1411,16 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.IDHash, token.type.to!string);
     assert(token.value == "_Red", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Delim, token.type.to!string);
+    assert(token.value == "#", token.value);
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Delim, token.type.to!string);
+    assert(token.value == ".", token.value);
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "red", token.value);
 }
