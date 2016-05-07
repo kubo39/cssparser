@@ -799,7 +799,7 @@ class Tokenizer
                 case '\\':
                     if (!hasNewlineAt(1))
                         return Token(TokenType.Hash, input[start .. position]);
-                    goto default;
+                    goto default;  // intended fallthrough.
                 default:
                     return Token(TokenType.Delim, input[start .. position]);
                 }
