@@ -780,7 +780,7 @@ class Tokenizer
                 }
             }
         L1:
-            return Token(TokenType.Whitespace, input[start .. position]);
+            return Token(TokenType.Whitespace);
         case '"':
             return consumeQuotedString(false);
         case '#':
