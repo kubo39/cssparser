@@ -79,9 +79,7 @@ class Parser
         {
             Token token = nextIncludingWhitespaceAndComments;
             if (token.type != TokenType.Whitespace && token.type != TokenType.Comment)
-            {
                 return token;
-            }
         }
     }
 
@@ -91,9 +89,7 @@ class Parser
         {
             Token token = nextIncludingWhitespaceAndComments;
             if (token.type != TokenType.Comment)
-            {
                 return token;
-            }
         }
     }
 
@@ -102,15 +98,11 @@ class Parser
     {
         BlockType blockType = atStartOf;
         if (blockType != BlockType.None)
-        {
             consumeUntilEndOfBlock(blockType);
-        }
         Token token = tokenizer.nextToken;
         blockType = openingBlockType(token);
         if (blockType != BlockType.None)
-        {
             atStartOf = blockType;
-        }
         return token;
     }
 
@@ -120,14 +112,10 @@ class Parser
         {
             Token token = tokenizer.nextToken;
             if (closingBlockType(token) == blockType)
-            {
                 return;
-            }
             blockType = openingBlockType(token);
             if (blockType != BlockType.None)
-            {
                 return consumeUntilEndOfBlock(blockType);
-            }
         }
     }
 }
