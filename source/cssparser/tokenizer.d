@@ -1129,7 +1129,7 @@ unittest
 // at-keyword.
 unittest
 {
-    auto s = "@media0 @-Media @--media";
+    auto s = "@media0 @-Media @--media @-\\-media @0media @-0media @_media";
     auto tokenizer = new Tokenizer(s);
     Token token = tokenizer.nextToken;
     assert(token.type == TokenType.AtKeyword, token.type.to!string);
@@ -1146,4 +1146,44 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.AtKeyword, token.type.to!string);
     assert(token.value == "--media", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.AtKeyword, token.type.to!string);
+    assert(token.value == "--media", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Delim, token.type.to!string);
+    assert(token.value == "@", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "0", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "media", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Delim, token.type.to!string);
+    assert(token.value == "@", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "-0", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "media", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.AtKeyword, token.type.to!string);
+    assert(token.value == "_media", token.value);
 }
