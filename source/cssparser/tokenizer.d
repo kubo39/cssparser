@@ -1249,3 +1249,94 @@ unittest
     assert(token.type == TokenType.Percentage, token.type.to!string);
     assert(token.value == "-0.67", token.value);
 }
+
+
+// Dimension.
+unittest
+{
+    auto s = "12px +34px -45px .67px +.89px -.01px 2.3px +45.0px -0.67px";
+    auto tokenizer = new Tokenizer(s);
+    Token token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "12", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "px", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "34", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "px", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "-45", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "px", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "0.67", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "px", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "0.89", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "px", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "-0.01", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "px", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "2.3", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "px", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "45", token.value);
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Ident, token.type.to!string);
+    assert(token.value == "px", token.value);
+
+    tokenizer.nextToken; // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Dimension, token.type.to!string);
+    assert(token.value == "-0.67", token.value);
+}
