@@ -2,7 +2,7 @@
 
 module cssparser.tokenizer;
 
-import std.algorithm : startsWith, canFind;
+import std.algorithm : startsWith, canFind, countUntil;
 import std.ascii : isASCII, isDigit, isHexDigit;
 import std.string : toLower;
 import std.conv : to;
@@ -134,9 +134,9 @@ class Tokenizer
             ulong newLinePosition = (string arr, immutable(char)[] targets) {
                 foreach (target; targets)
                 {
-                    foreach (id, v; arr)
-                        if (v == target)
-                            return id;
+                    auto id = arr.countUntil(target);
+                    if (id != -1)
+                        return id;
                 }
                 assert(false);
             }(source, ['\n', '\r', '\x0C']);
