@@ -135,10 +135,8 @@ class Tokenizer
                 foreach (target; targets)
                 {
                     foreach (id, v; arr)
-                    {
                         if (v == target)
                             return id;
-                    }
                 }
                 assert(false);
             }(source, ['\n', '\r', '\x0C']);
@@ -185,7 +183,7 @@ class Tokenizer
     bool hasNewlineAt(ulong offset)
     {
         char c = charAt(offset);
-        return position + offset < input.length && (c == '\n' || c == '\r');
+        return position + offset < input.length && c == '\n' || c == '\r';
     }
 
     bool isIdentStart()
@@ -252,7 +250,8 @@ class Tokenizer
             break;
         }
 
-        if (hasSign) advance(1);
+        if (hasSign)
+            advance(1);
 
         double integralPart = 0.0;
         while (true)
@@ -262,7 +261,8 @@ class Tokenizer
             {
                 integralPart = integralPart * 10.0 + (digit - 48).to!double;
                 advance(1);
-                if (isEOF) break;
+                if (isEOF)
+                    break;
             }
             else
                 break;
@@ -286,7 +286,8 @@ class Tokenizer
                         fractionalPart += (digit - 48).to!double * factor;
                         factor *= 0.1;
                         advance(1);
-                        if (isEOF) break;
+                        if (isEOF)
+                            break;
                     }
                     else
                         break;
@@ -330,7 +331,8 @@ class Tokenizer
                 {
                     exponent = exponent * 10.0 + (digit - 48).to!double;
                     advance(1);
-                    if (isEOF) break;
+                    if (isEOF)
+                        break;
                 }
                 else
                     break;
@@ -359,13 +361,9 @@ class Tokenizer
         }
 
         if (isIdentStart)
-        {
             return Token(TokenType.Dimension, value.to!string);
-        }
         else
-        {
             return Token(TokenType.Number, value.to!string);
-        }
     }
 
     Token consumeIdentLike()
@@ -583,9 +581,7 @@ class Tokenizer
                 break;
             case '\\':
                 if (hasNewlineAt(1))
-                {
                     return value.data;
-                }
                 advance(1);
                 break;
             case '\0':
