@@ -362,10 +362,12 @@ class Tokenizer
         }
 
         if (isIdentStart)
+        {
             if (isInteger)
                 return Token(TokenType.Dimension, intVal.to!string);
             else
                 return Token(TokenType.Dimension, value.to!string);
+        }
         else
             if (isInteger)
                 return Token(TokenType.Number, intVal.to!string);
@@ -376,15 +378,23 @@ class Tokenizer
     Token consumeIdentLike()
     {
         string value = consumeName;
-        if (!isEOF && nextChar == '(')
+        if (isEOF)
+            return Token(TokenType.Ident, value);
+
+        if (nextChar == '(')
         {
             advance(1);
             if (value.toLower == "url")
                 return consumeUnquotedUrl;
-            if (varFunctions == VarFunctions.LookingForThem &&
-                value.toLower == "var")
-                varFunctions = VarFunctions.SeenAtLeastOne;
-            return Token(TokenType.Function, value);
+            else
+            {
+                if (varFunctions == VarFunctions.LookingForThem &&
+                    value.toLower == "var")
+                {
+                    varFunctions = VarFunctions.SeenAtLeastOne;
+                }
+                return Token(TokenType.Function, value);
+            }
         }
         return Token(TokenType.Ident, value);
     }
@@ -1658,4 +1668,36 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.Ident, token.type.to!string);
     assert(token.value == "red", token.value);
+}
+
+
+// Function.
+unittest
+{
+    auto s = "rgba0() -rgba() --rgba()";
+    auto tokenizer = new Tokenizer(s);
+    Token token = tokenizer.nextToken;
+    assert(token.type == TokenType.Function, token.type.to!string);
+    assert(token.value == "rgba0", token.value);
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.CloseParenthesis, token.type.to!string);
+    assert(token.value == ")", token.value);
+
+    tokenizer.nextToken;  // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Function, token.type.to!string);
+    assert(token.value == "-rgba", token.value);
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.CloseParenthesis, token.type.to!string);
+    assert(token.value == ")", token.value);
+
+    tokenizer.nextToken;  // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Function, token.type.to!string);
+    assert(token.value == "--rgba", token.value);
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.CloseParenthesis, token.type.to!string);
+    assert(token.value == ")", token.value);
 }
