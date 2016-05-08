@@ -9,6 +9,7 @@ import std.conv : to;
 import std.typecons : Tuple, tuple;
 import std.math : pow;
 import std.array : appender;
+import std.uni : isSurrogate;
 
 
 enum TokenType
@@ -487,12 +488,14 @@ class Tokenizer
             case '\\':
                 if (hasNewlineAt(0))
                     return consumeBadUrl;
-                assert(false);
+                s.put(consumeEscape);
+                break;
             case '\0':
                 s.put('\uFFFD');
                 break;
             default:
                 s.put(c);
+                break;
             }
         }
         return Token(TokenType.UnquotedUrl, s.data);
@@ -589,6 +592,7 @@ class Tokenizer
                 if (hasNewlineAt(1))
                     return value.data;
                 advance(1);
+                value.put(consumeEscape);
                 break;
             case '\0':
                 advance(1);
@@ -681,7 +685,7 @@ class Tokenizer
                             advance(1);
                         break;
                     default:
-                        value.put(c);
+                        value.put(consumeEscape);
                         break;
                     }
                 }
@@ -753,6 +757,63 @@ class Tokenizer
                 break;
         }
         return tuple(value, digits);
+    }
+
+    // https://drafts.csswg.org/css-syntax/#consume-escaped-code-point
+    //
+    // Assumes that the U+005C REVERSE SOLIDUS (\) has already been consumed
+    // and that the next input code point has already been verified to
+    // not be a newline.
+    // It will return a code points.
+    dchar consumeEscape()
+    {
+        if (isEOF)
+            return 0xFFFD;  // Escaped EOF.
+
+        switch (nextChar)
+        {
+        case '0': .. case '9':  // consume hex digit.
+        case 'A': .. case 'F':
+        case 'a': .. case 'f':
+            auto pair = consumeHexDigit;
+            if (!isEOF)
+            {
+                switch (nextChar)
+                {
+                case ' ':
+                case '\t':
+                case '\n':
+                case '\x0C':
+                    advance(1);
+                    break;
+                case '\r':
+                    advance(1);
+                    if (!isEOF && nextChar == '\n')
+                        advance(1);
+                    break;
+                default:
+                    break;
+                }
+            }
+            auto REPLACEMENT_CHARACTER = 0xFFFD;
+
+            // If this number is zero, or is for a surrogate code point,
+            // or is greater than the maximum allowed code point,
+            // return U+FFFD REPLACEMENT CHARACTER (�).
+            // Otherwise, return the code point with that value.
+            dchar c =  pair[0].to!dchar;
+            if (c == 0 || c.isSurrogate || c > 0x10FFFF)
+                return REPLACEMENT_CHARACTER;
+            return c;
+        case '\0':
+            advance(1);
+            return 0xFFFD;
+        default:
+            auto c = nextChar;
+            advance(1);
+            return c;
+        }
+        assert(false);
     }
 
     Token nextToken()
