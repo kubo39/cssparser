@@ -355,15 +355,21 @@ class Tokenizer
         {
             advance(1);
             if (isInteger)
-                return Token(TokenType.Percentage, value.to!string);
+                return Token(TokenType.Percentage, intVal.to!string);
             else
                 return Token(TokenType.Percentage, value.to!float.to!string);
         }
 
         if (isIdentStart)
-            return Token(TokenType.Dimension, value.to!string);
+            if (isInteger)
+                return Token(TokenType.Dimension, intVal.to!string);
+            else
+                return Token(TokenType.Dimension, value.to!string);
         else
-            return Token(TokenType.Number, value.to!string);
+            if (isInteger)
+                return Token(TokenType.Number, intVal.to!string);
+            else
+                return Token(TokenType.Number, value.to!string);
     }
 
     Token consumeIdentLike()
@@ -1342,7 +1348,7 @@ unittest
 
     token = tokenizer.nextToken;
     assert(token.type == TokenType.Dimension, token.type.to!string);
-    assert(token.value == "-0", token.value);
+    assert(token.value == "0", token.value);
 
     token = tokenizer.nextToken;
     assert(token.type == TokenType.Ident, token.type.to!string);
