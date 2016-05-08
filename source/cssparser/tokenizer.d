@@ -376,15 +376,21 @@ class Tokenizer
     Token consumeIdentLike()
     {
         string value = consumeName;
-        if (!isEOF && nextChar == '(')
+        if (isEOF)
+            return Token(TokenType.Ident, value);
+
+        if (nextChar == '(')
         {
             advance(1);
             if (value.toLower == "url")
                 return consumeUnquotedUrl;
-            if (varFunctions == VarFunctions.LookingForThem &&
-                value.toLower == "var")
-                varFunctions = VarFunctions.SeenAtLeastOne;
-            return Token(TokenType.Function, value);
+            else
+            {
+                if (varFunctions == VarFunctions.LookingForThem &&
+                    value.toLower == "var")
+                    varFunctions = VarFunctions.SeenAtLeastOne;
+                return Token(TokenType.Function, value);
+            }
         }
         return Token(TokenType.Ident, value);
     }
@@ -403,10 +409,10 @@ class Tokenizer
             case '\n':
             case '\r':
             case '\x0C':
-                break;
+                continue;
             case '"':
             case '\'':
-                return Token(TokenType.Function);
+                return Token(TokenType.Function, input[start .. position]);
             case ')':  // End of url-token.
                 advance(offset);
                 return Token(TokenType.UnquotedUrl, input[start .. position]);
@@ -1658,4 +1664,21 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.Ident, token.type.to!string);
     assert(token.value == "red", token.value);
+}
+
+
+// Function.
+unittest
+{
+    auto s = "rgba0() -rgba() --rgba()";
+    auto tokenizer = new Tokenizer(s);
+    Token token = tokenizer.nextToken;
+    assert(token.type == TokenType.Function, token.type.to!string);
+    assert(token.value == "rgba0", token.value);
+
+    // tokenizer.nextToken;  // consume Whitespace.
+
+    token = tokenizer.nextToken;
+    assert(token.type == TokenType.Function, token.type.to!string);
+    assert(token.value == "-rgba", token.value);
 }
