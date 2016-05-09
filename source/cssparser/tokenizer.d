@@ -1090,6 +1090,44 @@ class Tokenizer
         }
         assert(false);
     }
+
+    class Range
+    {
+        Tokenizer _tokenizer;
+        Token current;
+
+        this(Tokenizer tokenizer)
+        {
+            _tokenizer = tokenizer;
+            current = _tokenizer.nextToken;  // first time.
+        }
+
+        bool empty()
+        {
+            return current.type == TokenType.EOF;
+        }
+
+        Token front()
+        {
+            return current;
+        }
+
+        void popFront()
+        {
+            current = _tokenizer.nextToken;
+        }
+    }
+
+    unittest
+    {
+        import std.range : isInputRange;
+        static assert (isInputRange!Range);
+    }
+
+    Range opSlice()
+    {
+        return new Range(this);
+    }
 }
 
 
@@ -1700,4 +1738,19 @@ unittest
     token = tokenizer.nextToken;
     assert(token.type == TokenType.CloseParenthesis, token.type.to!string);
     assert(token.value == ")", token.value);
+}
+
+
+// Range
+unittest
+{
+    import std.conv : to;
+
+    const s = "bar";
+    Token last;
+    foreach (token; new Tokenizer(s))
+    {
+        last = token;
+    }
+    assert(last.type == TokenType.Ident, last.type.to!string);
 }
