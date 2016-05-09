@@ -127,6 +127,7 @@ class Parser
         this(Parser parser)
         {
             _parser = parser;
+            current = _parser.next;  // first time.
         }
 
         bool empty()
