@@ -1,0 +1,8 @@
+{
+    "name": "cssparser-example",
+    "authors": ["kubo39"],
+    "targetType": "executable",
+    "dependencies": {
+        "cssparser": {"version": "~master", "path": "../"}
+    }
+}
