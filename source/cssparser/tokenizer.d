@@ -358,7 +358,7 @@ class Tokenizer
             if (isInteger)
                 return Token(TokenType.Percentage, intVal.to!string);
             else
-                return Token(TokenType.Percentage, value.to!float.to!string);
+                return Token(TokenType.Percentage, value.to!string);
         }
 
         if (isIdentStart)
