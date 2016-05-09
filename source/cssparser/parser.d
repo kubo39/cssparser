@@ -118,6 +118,43 @@ class Parser
                 return consumeUntilEndOfBlock(blockType);
         }
     }
+
+    class Range
+    {
+        Parser _parser;
+        Token current;
+
+        this(Parser parser)
+        {
+            _parser = parser;
+        }
+
+        bool empty()
+        {
+            return current.type == TokenType.EOF;
+        }
+
+        Token front()
+        {
+            return current;
+        }
+
+        void popFront()
+        {
+            current = _parser.next;
+        }
+    }
+
+    unittest
+    {
+        import std.range : isInputRange;
+        static assert (isInputRange!Range);
+    }
+
+    Range opSlice()
+    {
+        return new Range(this);
+    }
 }
 
 
@@ -217,4 +254,19 @@ unittest
     assert(token.type == TokenType.EOF);
     token = parser.next;
     assert(token.type == TokenType.EOF);
+}
+
+
+// Range
+unittest
+{
+    import std.conv : to;
+
+    const s = "bar";
+    Token last;
+    foreach (token; new Parser(s))
+    {
+        last = token;
+    }
+    assert(last.type == TokenType.Ident, last.type.to!string);
 }
