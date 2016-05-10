@@ -958,20 +958,16 @@ class Tokenizer
             {
                 advance(2);
                 auto start = position;
-                string content = void;
                 auto found = input[position .. $].canFind("*/");
                 if (!found)
                 {
                     position = input.length;
-                    content = input[start .. position];
                 }
                 else
                 {
-                    advance(found);
-                    content = input[start .. position];
-                    advance(2);
+                    advance(found + 2);
                 }
-                return Token(TokenType.Comment, content);
+                return Token(TokenType.Comment);
             }
             else
             {
