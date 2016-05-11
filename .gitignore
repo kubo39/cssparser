@@ -2,3 +2,5 @@
 *.o
 build/
 .dub/
+trace.def
+trace.log
