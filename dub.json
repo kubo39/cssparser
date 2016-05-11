@@ -4,4 +4,5 @@
     "authors": ["kubo39"],
     "targetType": "library",
     "targetPath": "build",
+    "license": "MIT"
 }
